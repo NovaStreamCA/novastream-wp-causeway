@@ -1,7 +1,7 @@
 
 # Causeway 5.0 WordPress Importer
 
-A bridge to connect [NovaStream](https://novastream.ca)'s Causeway app with a WordPress site, mobile application or another solution.
+This plugin is a bridge to connect [NovaStream](https://novastream.ca)'s Causeway app with a WordPress site, mobile application or another solution.
 
 [Causeway](https://beta.causewayapp.ca) is a software-as-a-service allowing the administrators to manage tourism listings located throughout Cape Breton Island which can be distributed to other websites and platforms without the data becoming out of sync. A single source of truth. 
 
@@ -90,6 +90,11 @@ An application password can be created for a user to allow Causeway to connect t
 Application passwords can be created in your profile section on the WordPress dashboard.
 Once you create a password, please send us the password and we can add it into Causeway.
 
+WP-CLI can be used to create an application password for a user by executing the following command in the root of your public htdocs folder:
+```bash
+wp user application-password create <username> "Causeway Importer" --porcelain
+```
+
 
 ## Other Considerations
 
@@ -97,6 +102,11 @@ Once you create a password, please send us the password and we can add it into C
 The causeway data is cached in transient data for 1 (one) hour. If you are using the WP REST API and things are not updating near-instantaneously, please verify WordPress' transient cache, object cache, server and client-side caching is cleared before reporting an issue.
 
 Transient cache can be cleared with a plugin through the WordPress admin. Other caching solutions are dependent on the hosting environment.
+
+The transient may be cleared through WP-CLI by executing the following command:
+```bash
+wp transient delete causeway_data
+```
 
 ### Cronjob
 * The cronjob is only executed once a day at midnight.
