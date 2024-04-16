@@ -1,0 +1,41 @@
+{
+    "name": "novastream/wp-causeway",
+    "description": "A bridge to connect NovaStream's Causeway app with a WordPress site, mobile application or another solution.",
+    "version": "1.0.0",
+    "type": "project",
+    "keywords": [ "plugin", "wordpress", "destination management", "destination marketing", "tourism"],
+    "homepage": "https://causewayapp.ca",
+    "license": "proprietary",
+    "support": {
+        "email": "support@novastream.ca",
+        "source": "https://github.com/NovaStreamCA/novastream-wp-causeway"
+    },
+    "autoload": {
+        "psr-4": {
+            "NovaStream\\CausewayImporter\\": "./src"
+        }
+    },
+    "authors": [
+        {
+            "name": "Matt Lewis",
+            "email": "matt@novastream.ca",
+            "homepage": "https://matthewlewis.ca",
+            "role": "Developer"
+        },
+        {
+            "name": "Dylan George",
+            "email": "dylan@novastream.ca",
+            "homepage": "https://dylangeorge.ca",
+            "role": "Developer"
+        },
+        {
+            "name": "Jason Jardine",
+            "email": "jason@novastream.ca",
+            "homepage": "https://novastream.ca",
+            "role": "Project Manager"
+        }
+    ],
+    "require": {
+        "rlanvin/php-rrule": "^2.4"
+    }
+}
