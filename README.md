@@ -112,6 +112,18 @@ wp transient delete causeway_data
 * The cronjob is only executed once a day at midnight.
 * WordPress cron only executes if a visitor interacts with your site or you have disabled **WP_CRON** and used an alternate method of executing cronjobs.
 
+The cronjob can also be executed via WP-CLI.
+
+The cronjob will attempt to load the data from a transient if it was set. Otherwise it will contact the remote server to download the fresh data.
+```bash
+wp cron event run cron_import_causeway
+```
+
+You can also forcefully retrieve the fresh data by deleting the transient and running the import.
+```bash
+wp transient delete causeway_data; wp cron event run cron_import_causeway
+```
+
 ### Advanced Custom Fields
 This plugin will attempt to update any existing ACF fields based on Verb Interactive's setup. There may be some ACF fields not used or updated by our plugin. It will also use their Events Manager plugin to generate dates for any events. 
 
