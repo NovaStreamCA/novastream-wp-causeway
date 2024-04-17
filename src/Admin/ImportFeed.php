@@ -54,7 +54,7 @@ class ImportFeed
                     'headers' => array(
                         'Accept' => 'application/json',
                     ),
-                    'timeout' => 60,
+                    'timeout' => MINUTE_IN_SECONDS,
                     'sslverify' => false,
                 ));
 
@@ -63,8 +63,10 @@ class ImportFeed
                     return false;
                 }
 
-                if (wp_remote_retrieve_response_code($response) !== 200) {
-                    $this->plugin->error('Bad HTTP Status code. Check API Key.');
+                $statusCode = wp_remote_retrieve_response_code($response);
+
+                if ($statusCode !== \WP_Http::OK) {
+                    $this->plugin->error("Invalid HTTP status code {$statusCode} received. Check API Key.");
                     return false;
                 }
                 $body = json_decode($response['body'], true);
@@ -160,7 +162,13 @@ class ImportFeed
         }
 
         if (empty($post['post_type'])) {
-            throw new \Exception('Bad post type');
+            $this->plugin->warning(
+                "Post type must not be empty for {$listing['name']}",
+                [
+                    'types' => $listing['types']
+                ]
+            );
+            return;
         }
 
         // Find the Post ID based on the Causeway ID or slug
@@ -289,6 +297,8 @@ class ImportFeed
      * Meta keys not used by Causeway
      *   - patio_lantern
      *   - tunes_town
+     *   - date_description
+     *   - excerpt
      * @param Int $id
      * @param String $postType
      * @param Array $listing
@@ -432,11 +442,7 @@ class ImportFeed
                 $attachments[] = \str_ireplace('https://', '', $attachment['url']);
             }
 
-            if ($postType === 'events') {
-                update_field('product_images', join(',', $attachments), $id);
-            } else {
-                update_field('feed_images', join(',', $attachments), $id);
-            }
+            update_field('product_images', join(',', $attachments), $id);
 
             unset($attachment, $attachments);
         }

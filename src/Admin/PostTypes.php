@@ -403,7 +403,7 @@ class PostTypes
         ]);
 
         if (empty($ID)) {
-            $this->plugin->error('Could not find post ID based on causeway ID or slug');
+            $this->plugin->warning('Could not find post ID based on causeway ID or slug');
         }
 
         return rest_ensure_response((Int)$ID);

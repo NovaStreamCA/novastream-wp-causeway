@@ -453,6 +453,24 @@ class CausewayImporter
     }
 
     /**
+     * Display warning message to Query Monitor and WP_CLI
+     *
+     * @param String $message
+     * @param array $context
+     * @return void
+     */
+    public function warning($message, $context = [])
+    {
+        do_action('qm/warning', $message, $context);
+
+        if (defined('WP_CLI') && WP_CLI) {
+            \WP_CLI::warning($message);
+        }
+
+        return;
+    }
+
+    /**
      * Display error message to Query Monitor and WP_CLI
      *
      * @param String $message
