@@ -40,5 +40,10 @@
     },
     "require-dev": {
         "squizlabs/php_codesniffer": "*"
-    }
+    },
+    "scripts": {
+        "bump": [
+          "scripts/bump.sh"
+        ]
+      }
 }
