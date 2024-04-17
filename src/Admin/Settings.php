@@ -4,9 +4,11 @@ namespace NovaStream\CausewayImporter\Admin;
 
 use NovaStream\CausewayImporter\CausewayImporter;
 
+// phpcs:disable PSR1.Files.SideEffects.FoundWithSymbols
 if (!defined('ABSPATH')) {
-	exit; // Exit if accessed directly
+    exit; // Exit if accessed directly
 }
+// phpcs:enable PSR1.Files.SideEffects.FoundWithSymbols
 
 class Settings
 {
@@ -52,6 +54,6 @@ class Settings
 
         $options = $this->plugin->getOptions();
 
-        include (sprintf('%s/html/settings.php', dirname(__FILE__)));
+        include(sprintf('%s/html/settings.php', dirname(__FILE__)));
     }
 }

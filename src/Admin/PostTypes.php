@@ -4,9 +4,11 @@ namespace NovaStream\CausewayImporter\Admin;
 
 use NovaStream\CausewayImporter\CausewayImporter;
 
+// phpcs:disable PSR1.Files.SideEffects.FoundWithSymbols
 if (!defined('ABSPATH')) {
-	exit; // Exit if accessed directly
+    exit; // Exit if accessed directly
 }
+// phpcs:enable PSR1.Files.SideEffects.FoundWithSymbols
 
 class PostTypes
 {
@@ -262,8 +264,8 @@ class PostTypes
      * @param Array $data
      * @return void
      */
-    public function registerTaxonomy($slug, $data) {
-
+    public function registerTaxonomy($slug, $data)
+    {
         $taxLabels = [
             'name' => _x($data['multiple'], 'Taxonomy General Name', 'novastream-wp-causeway'),
             'singular_name' => _x($data['single'], 'Taxonomy Singular Name', 'novastream-wp-causeway'),
@@ -386,14 +388,14 @@ class PostTypes
         $posts = get_posts([
             'post_type' => $info['type'],
             'meta_key' => 'id',
-            'meta_value' => (Int)$info['id'],
+            'meta_value' => (int)$info['id'],
             'posts_per_page' => 1,
             'post_status' => 'any',
         ]);
 
 
         if (!empty($posts)) {
-            return rest_ensure_response((Int)$posts[0]->ID);
+            return rest_ensure_response((int)$posts[0]->ID);
         }
 
         $ID = $this->getPostIdBySlug([
@@ -406,6 +408,6 @@ class PostTypes
             $this->plugin->warning('Could not find post ID based on causeway ID or slug');
         }
 
-        return rest_ensure_response((Int)$ID);
+        return rest_ensure_response((int)$ID);
     }
 }

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Causeway 5.0 WordPress Importer
  *
@@ -24,11 +25,13 @@ use NovaStream\CausewayImporter\Admin\Settings;
 use NovaStream\CausewayImporter\Admin\PostTypes;
 use NovaStream\CausewayImporter\Admin\ImportFeed;
 
+// phpcs:disable PSR1.Files.SideEffects.FoundWithSymbols
 require __DIR__ . '/vendor/autoload.php';
 
 if (!defined('ABSPATH')) {
-	exit; // Exit if accessed directly
+    exit; // Exit if accessed directly
 }
+// phpcs:enable PSR1.Files.SideEffects.FoundWithSymbols
 
 class CausewayImporter
 {
@@ -54,9 +57,9 @@ class CausewayImporter
         add_action('init', array($this, 'onInit'));
 
 
-		if (is_admin()) {
-			new Settings($this);
-		}
+        if (is_admin()) {
+            new Settings($this);
+        }
         return;
     }
 
@@ -271,7 +274,8 @@ class CausewayImporter
      *
      * @return void
      */
-    public function onActivate() {
+    public function onActivate()
+    {
         flush_rewrite_rules();
 
         return;
@@ -282,7 +286,8 @@ class CausewayImporter
      *
      * @return void
      */
-    public function onDeactivate() {
+    public function onDeactivate()
+    {
         $this->importFeed->deactivate();
         $this->postTypes->deactivate();
 
@@ -296,7 +301,8 @@ class CausewayImporter
      *
      * @return void
      */
-    public function onInit() {
+    public function onInit()
+    {
         $this->postTypes = new PostTypes($this);
         $this->importFeed = new ImportFeed($this);
         $this->loadOptions();
@@ -332,7 +338,7 @@ class CausewayImporter
         $repeater = (array)get_field('event_schedule', $id);
 
         // We already store the dates in local timezone, so no need to adjust it again.
-        $endDates = array_filter(array_map(function($value) use ($timezone) {
+        $endDates = array_filter(array_map(function ($value) use ($timezone) {
             return \DateTime::createFromFormat('Y-m-d H:i:s', $value['end_date'], $timezone);
         }, $repeater), 'is_object');
 
@@ -385,7 +391,8 @@ class CausewayImporter
      * @param \WP_Query $query
      * @return void
      */
-    public function hideExpiredListings($query) {
+    public function hideExpiredListings($query)
+    {
         return $query;
     }
 
@@ -507,4 +514,6 @@ class CausewayImporter
 }
 
 
+// phpcs:disable PSR1.Files.SideEffects.FoundWithSymbols
 $causeway = new CausewayImporter();
+// phpcs:enable PSR1.Files.SideEffects.FoundWithSymbols

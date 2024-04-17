@@ -5,9 +5,11 @@ namespace NovaStream\CausewayImporter\Admin;
 use NovaStream\CausewayImporter\CausewayImporter;
 use RRule\RRule;
 
+// phpcs:disable PSR1.Files.SideEffects.FoundWithSymbols
 if (!defined('ABSPATH')) {
-	exit; // Exit if accessed directly
+    exit; // Exit if accessed directly
 }
+// phpcs:enable PSR1.Files.SideEffects.FoundWithSymbols
 
 /**
  * ImportFeed class for a cronjob style import to make sure data is updated daily.
@@ -31,7 +33,7 @@ class ImportFeed
         add_action($this->cronHandle, array($this, 'import'));
 
         // 13:00:00 UTC is 10am Atlantic
-        if (!wp_next_scheduled ($this->cronHandle)) {
+        if (!wp_next_scheduled($this->cronHandle)) {
             wp_schedule_event(strtotime('00:00:00'), 'daily', $this->cronHandle);
         }
     }
@@ -79,7 +81,6 @@ class ImportFeed
 
                 $this->plugin->debug('Saved response as transient');
             } else {
-
                 $this->plugin->notice('Using data from cache');
             }
 
@@ -172,7 +173,7 @@ class ImportFeed
         }
 
         // Find the Post ID based on the Causeway ID or slug
-        $id = $this->findIdByMeta((Int)$listing['id'], $listing['slug'], $post['post_type']);
+        $id = $this->findIdByMeta((int)$listing['id'], $listing['slug'], $post['post_type']);
 
         $meta = array_diff_key(
             $listing,
@@ -253,7 +254,12 @@ class ImportFeed
 
         $post['ID'] = $id = wp_insert_post($post, true);
         if (is_wp_error($id) || $id === 0) {
-            throw new \Exception(sprintf('Error occurred during post %s (%s), creation: %s', $post['post_title'], $id, $id->get_error_message()));
+            $this->plugin->warning(sprintf(
+                'Error occurred during post %s (%s), creation: %s',
+                $post['post_title'],
+                $id,
+                $id->get_error_message()
+            ));
             return false;
         }
 
@@ -304,7 +310,8 @@ class ImportFeed
      * @param Array $listing
      * @return void
      */
-    private function updateAcfFields($id, $postType, $listing, $relatedListings) {
+    private function updateAcfFields($id, $postType, $listing, $relatedListings)
+    {
         if (!class_exists('ACF')) {
             return;
         }
@@ -438,7 +445,7 @@ class ImportFeed
             });
             $attachments = [];
             foreach ($listing['attachments'] as $attachment) {
-                // TODO: Remove the string replace if Verb will remove the theme part where it adds https:// automatically
+                // TODO: Remove the following if Verb will remove the theme part where it adds https:// automatically
                 $attachments[] = \str_ireplace('https://', '', $attachment['url']);
             }
 
@@ -481,7 +488,7 @@ class ImportFeed
         $postIds = array();
         if (!empty($metadata)) {
             foreach ($metadata as $meta) {
-                $postIds[] = (Int)$meta->post_id;
+                $postIds[] = (int)$meta->post_id;
             }
         }
 
@@ -526,8 +533,8 @@ class ImportFeed
             "SELECT `post_id`
                 FROM $wpdb->postmeta
                 WHERE `meta_key` = 'id'
-                AND `meta_value` = '{$id}'
-        ");
+                AND `meta_value` = '{$id}'"
+        );
 
         if (!is_null($meta)) {
             //$this->plugin->notice("Found $postType ID by meta with $id...");
