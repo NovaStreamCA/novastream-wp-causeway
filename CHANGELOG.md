@@ -6,13 +6,24 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+## [1.0.2] - 2024-04-17
+
+### Added
+- Method for displaying warning messages to Query Monitor and WP CLI
+
+### Modified
+- Changed some magic numbers to their constants
+
+### Removed
+- "feed_images" ACF key update. Not sure where I found that field group key but it doesn't look like its in use.
+
 ## [1.0.1] - 2024-04-17
 
 ### Added
 - Uninstall code
 
 ### Modified
-Small text changes in regards to LICENSE.md and README.md
+- Small text changes in regards to LICENSE.md and README.md
 
 ### Added
 - GitHub WordPress Plugin updater

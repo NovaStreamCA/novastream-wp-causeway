@@ -10,7 +10,7 @@
  * Plugin Name:       Causeway 5.0 WordPress Importer
  * Plugin URI:        https://causewayapp.ca
  * Description:       Import approved listings from causewayapp.ca backend using REST API to display on your website.
- * Version:           1.0.1
+ * Version:           1.0.2
  * Requires at least: 6.0
  * Requires PHP:      7.1
  * Author:            NovaStream Inc.
@@ -32,7 +32,7 @@ if (!defined('ABSPATH')) {
 
 class CausewayImporter
 {
-    private $version = '1.0.1';
+    private $version = '1.0.2';
     private $slug = 'novastream-wp-causeway';
     private $longName = 'Causeway 5.0 WordPress Importer';
     private $shortName = 'Causeway';
