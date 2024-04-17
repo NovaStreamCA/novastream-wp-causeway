@@ -124,14 +124,21 @@ The cronjob will attempt to load the data from a transient if it was set. Otherw
 wp cron event run cron_import_causeway
 ```
 
-You can also forcefully retrieve the fresh data by deleting the transient and running the import.
+You can also forcefully retrieve the fresh data by deleting the transient and running the import with one of the following flags --major, --minor, --rev.
 ```bash
-wp transient delete causeway_data; wp cron event run cron_import_causeway
+composer run-script bump -- --rev
 ```
 
 ### Advanced Custom Fields
 This plugin will attempt to update any existing ACF fields based on Verb Interactive's setup. There may be some ACF fields not used or updated by our plugin. It will also use their Events Manager plugin to generate dates for any events. 
 
+### Developer Notes
+There is a script included that can be used to bump versions and automatically tag and push them to GitHub.
+
+In the root folder of the plugin, you can execute the following to accomplish that:
+```bash
+wp transient delete causeway_data; wp cron event run cron_import_causeway
+```
 ## Release Notes / Road Map
 Release notes for this version are available in the [CHANGELOG.md](CHANGELOG.md) file.
 
