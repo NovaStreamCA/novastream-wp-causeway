@@ -71,7 +71,7 @@ case "$1" in
         # Tag the commit
         git tag -a "v$NEW_VERSION" -m "Version $NEW_VERSION"
 
-        git push
+        git push origin master --tags
 
         echo "Version bumped to $NEW_VERSION"
         ;;
