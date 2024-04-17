@@ -32,7 +32,7 @@ As of April 2024, there are currently eight (8) consumers of our API.
 There are two ways the plugin saves listing data from our API into WordPress.
 
 1. **REST API**  
-WordPress' REST API allows users to create a application password for a user which would be used to import listings. When an edit is made on Causeway, it will contact all the applications who've been granted access to the feed and update/create the listing.
+WordPress' REST API allows users to create an application password for a user which would be used to import listings. When an edit is made on Causeway, it will contact all the applications who've been granted access to the feed and update/create the listing.
 
 2. **Cronjob**  
 This is a alternate method of importing the listings into the WordPress instance in case the REST API is unavailable or disabled.
@@ -47,6 +47,11 @@ The latest zipball archives are available on our [Releases](https://github.com/N
 The plugin can be updated normally through the WordPress plugin dashboard when a new version is released. Releases along with their respective release notes are available on the GitHub repository.
 
 Please note if auto-updates are disabled for any reason, there might be a chance you will not be notified about new updates and will have to manually update the plugin.
+
+## Uninstall
+When uninstalling this plugin, it will remove all associated data stored.
+
+This includes any transient caching, schedule cron hooks and any stored API keys and other options.
 
 ## Configuration
 You can configure the plugin settings by viewing the "Causeway" tab on the WordPress sidebar after logging into the administrative section.
@@ -88,7 +93,7 @@ If you find yourself needing to do this action often, please ensure the REST API
 An application password can be created for a user to allow Causeway to connect to the REST API for quicker updates.
 
 Application passwords can be created in your profile section on the WordPress dashboard.
-Once you create a password, please send us the password and we can add it into Causeway.
+Once you create a password, please send us the domaibn of the website, the username along with the password and we can add it into Causeway.  
 
 WP-CLI can be used to create an application password for a user by executing the following command in the root of your public htdocs folder:
 ```bash
@@ -136,6 +141,13 @@ No known issues as of 2024-04-15.
 
 To raise an issue that is not listed here, please read [how to report an issue](#support--reporting-issues).
 
+
+## License
+By downloading and using the Causeway Importer and its related services, you agree to the product [license terms](LICENSE.md).
+
+License for this repository:
+
+Copyright © NovaStream Inc. All rights reserved.
 
 ## Security
 
