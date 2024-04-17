@@ -13,7 +13,7 @@ We release patches whenever possible for security vulnerabilities for supported 
 
 | Supported Versions | Release Date       |
 | -------------------|------------------- |
-| 1.0.0              | March 2024         |
+| 1.0.x              | March 2024         |
 
 ## Reward
 
