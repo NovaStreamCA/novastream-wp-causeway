@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "1bfa97950db4471652f6f4943336a451",
+    "content-hash": "7abc829babe011b5d263a0db9c9a3dfa",
     "packages": [
         {
             "name": "rlanvin/php-rrule",
