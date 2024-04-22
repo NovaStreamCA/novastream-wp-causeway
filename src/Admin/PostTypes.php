@@ -247,6 +247,10 @@ class PostTypes
                 'permission_callback' => '__return_true',
             ]);
 
+
+
+            add_action("rest_insert_$slug", array($this, 'updateTaxonomy'), 10, 3);
+
             // register_rest_route('causeway/v1', '/slug/(?P<type>.*)/(?P<slug>.*)', [
             //     'methods' => \WP_REST_Server::READABLE,
             //     'callback' => array($this, 'getPostIdBySlug'),
@@ -255,6 +259,29 @@ class PostTypes
         });
 
         return;
+    }
+
+    public function updateTaxonomy($post, $request, $creating)
+    {
+        $params = $request->get_json_params();
+        if (array_key_exists('terms', $params)) {
+            foreach ($params['terms'] as $taxonomy => $terms) {
+                if (is_array($terms)) {
+                    $terms = array_map('sanitize_title', $terms);
+                }
+                if (is_taxonomy_hierarchical($taxonomy)) {
+                    $termIds = [];
+                    foreach ($terms as $term) {
+                        $term = get_term_by('slug', $term, $taxonomy);
+                        if ($term !== false) {
+                            $termIds[] = $term->term_id;
+                        }
+                    }
+                    $terms = $termIds;
+                }
+                wp_set_post_terms($post->ID, $terms, $taxonomy);
+            }
+        }
     }
 
     /**
@@ -294,6 +321,7 @@ class PostTypes
             'show_ui' => true,
             'show_admin_column' => $data['admin_column'] ?? false,
             'show_in_nav_menus' => true,
+            'show_in_rest' => true,
             'show_tagcloud' => false,
             'query_var' => $slug,
             'rewrite' => true
@@ -346,8 +374,12 @@ class PostTypes
      */
     public function getPostIdBySlug($info)
     {
-        if (!in_array($info['type'], array_keys($this->postTypes))) {
-            return new \WP_Error('bad_post_type', 'Invalid Post Type', [ 'status' => 400 ]);
+        if ($info['type'] != 'any' && !in_array($info['type'], array_keys($this->postTypes))) {
+            return new \WP_Error('bad_post_type', 'Invalid Post Type', [ 'status' => \WP_Http::BAD_REQUEST ]);
+        }
+
+        if ($info['type'] === 'any') {
+            $info['type'] = array_keys($this->postTypes);
         }
 
         $args = [
@@ -381,23 +413,47 @@ class PostTypes
      */
     public function findPostId($info)
     {
-        if (!in_array($info['type'], array_keys($this->postTypes))) {
-            return new \WP_Error('bad_post_type', 'Invalid Post Type', [ 'status' => 400 ]);
+        if ($info['type'] != 'any' && !in_array($info['type'], array_keys($this->postTypes))) {
+            return new \WP_Error('bad_post_type', 'Invalid Post Type', [ 'status' => \WP_Http::BAD_REQUEST ]);
         }
 
-        $posts = get_posts([
-            'post_type' => $info['type'],
-            'meta_key' => 'id',
-            'meta_value' => (int)$info['id'],
+        if ($info['type'] === 'any') {
+            $postType = array_keys($this->postTypes);
+        } else {
+            $postType = $info['type'];
+        }
+
+        $args = [
+            'post_type' => $postType,
             'posts_per_page' => 1,
             'post_status' => 'any',
-        ]);
+            'meta_query' => [
+                [
+                    'key' => 'id',
+                    'value' => $info['id'],
+                    'compare' => '=',
+                    //'type' => 'NUMERIC',
+                ],
+            ]
+        ];
+
+        $query = new \WP_Query($args);
+
+        $ID = null;
+        if ($query->have_posts()) {
+            while ($query->have_posts()) {
+                $query->the_post();
+                $ID = get_the_ID();
+            }
+        }
+        wp_reset_postdata();
 
 
-        if (!empty($posts)) {
-            return rest_ensure_response((int)$posts[0]->ID);
+        if ($ID) {
+            return rest_ensure_response((int)$ID);
         }
 
+        // Pass the original $info['type'] if set to 'any' so it converts it there as well
         $ID = $this->getPostIdBySlug([
             'slug' => $info['slug'],
             'type' => $info['type'],
