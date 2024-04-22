@@ -124,9 +124,11 @@ The cronjob will attempt to load the data from a transient if it was set. Otherw
 wp cron event run cron_import_causeway
 ```
 
-You can also forcefully retrieve the fresh data by deleting the transient and running the import with one of the following flags --major, --minor, --rev.
+You can also forcefully retrieve the fresh data by deleting the transient and running the import in the same command.
+In the root htdocs directory of the WordPress install, you can execute the following to accomplish that:
 ```bash
-composer run-script bump -- --rev
+wp transient delete causeway_data; wp cron event run cron_import_causeway
+```t delete causeway_data; wp cron event run cron_import_causeway
 ```
 
 ### Advanced Custom Fields
@@ -137,7 +139,7 @@ There is a script included that can be used to bump versions and automatically t
 
 In the root directory of the plugin you can run the following command:
 ```bash
-composer bump --major/--minor/--rev
+composer run-script bump -- --rev
 ```
 
 You should also check your coding standards by running the PHPCS script in the same directory.
@@ -146,10 +148,6 @@ You can omit "-- -v" if you wish, as it just produces a verbose output.
 composer phpcs -- -v
 ```
 
-In the root htdocs directory of the WordPress install, you can execute the following to accomplish that:
-```bash
-wp transient delete causeway_data; wp cron event run cron_import_causeway
-```
 ## Release Notes / Road Map
 Release notes for this version are available in the [CHANGELOG.md](CHANGELOG.md) file.
 

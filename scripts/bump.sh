@@ -74,6 +74,8 @@ case "$1" in
         git push origin master --tags
 
         echo "Version bumped to $NEW_VERSION"
+
+        composer update --lock
         ;;
     *)
         echo "Invalid argument. Usage: $0 --major/--minor/--rev"

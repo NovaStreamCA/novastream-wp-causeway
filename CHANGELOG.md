@@ -6,6 +6,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+## [1.0.3] - 2024-04-22
+
+### Added
+- Adding the ability to update taxonomies via REST API by supplying the "terms" key.
+
+### Modified
+- Replaced get_posts() for post ID lookup with WP_Query class.
+
 ## [1.0.2] - 2024-04-17
 
 ### Added
