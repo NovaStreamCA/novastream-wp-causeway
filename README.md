@@ -93,9 +93,9 @@ If you find yourself needing to do this action often, please ensure the REST API
 An application password can be created for a user to allow Causeway to connect to the REST API for quicker updates.
 
 Application passwords can be created in your profile section on the WordPress dashboard.
-Once you create a password, please send us the domaibn of the website, the username along with the password and we can add it into Causeway.  
+Once you create a password, please send us the domain of the website, the username along with the password and we can add it into Causeway.  
 
-WP-CLI can be used to create an application password for a user by executing the following command in the root of your public htdocs folder:
+WP-CLI can be used to create an application password for a user by executing the following command in the root of your public htdocs directory:
 ```bash
 wp user application-password create <username> "Causeway Importer" --porcelain
 ```
@@ -135,7 +135,18 @@ This plugin will attempt to update any existing ACF fields based on Verb Interac
 ### Developer Notes
 There is a script included that can be used to bump versions and automatically tag and push them to GitHub.
 
-In the root folder of the plugin, you can execute the following to accomplish that:
+In the root directory of the plugin you can run the following command:
+```bash
+composer bump --major/--minor/--rev
+```
+
+You should also check your coding standards by running the PHPCS script in the same directory.
+You can omit "-- -v" if you wish, as it just produces a verbose output.
+```bash
+composer phpcs -- -v
+```
+
+In the root htdocs directory of the WordPress install, you can execute the following to accomplish that:
 ```bash
 wp transient delete causeway_data; wp cron event run cron_import_causeway
 ```
