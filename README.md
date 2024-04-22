@@ -128,7 +128,6 @@ You can also forcefully retrieve the fresh data by deleting the transient and ru
 In the root htdocs directory of the WordPress install, you can execute the following to accomplish that:
 ```bash
 wp transient delete causeway_data; wp cron event run cron_import_causeway
-```t delete causeway_data; wp cron event run cron_import_causeway
 ```
 
 ### Advanced Custom Fields
