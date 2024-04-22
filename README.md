@@ -124,8 +124,8 @@ The cronjob will attempt to load the data from a transient if it was set. Otherw
 wp cron event run cron_import_causeway
 ```
 
-You can also forcefully retrieve the fresh data by deleting the transient and running the import in the same command.
-In the root htdocs directory of the WordPress install, you can execute the following to accomplish that:
+You can also forcefully retrieve the fresh data by deleting the transient and running the import in the same command.  
+In the root htdocs directory of the WordPress install, you can execute the following to accomplish that:  
 ```bash
 wp transient delete causeway_data; wp cron event run cron_import_causeway
 ```
