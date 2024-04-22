@@ -50,6 +50,9 @@
   "scripts": {
     "bump": [
       "scripts/bump.sh"
+    ],
+    "phpcs": [
+      "vendor/bin/phpcs ."
     ]
   }
 }
