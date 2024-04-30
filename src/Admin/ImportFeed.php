@@ -445,8 +445,7 @@ class ImportFeed
             });
             $attachments = [];
             foreach ($listing['attachments'] as $attachment) {
-                // TODO: Remove the following if Verb will remove the theme part where it adds https:// automatically
-                $attachments[] = \str_ireplace('https://', '', $attachment['url']);
+                $attachments[] = $attachment['url'];
             }
 
             update_field('product_images', join(',', $attachments), $id);
