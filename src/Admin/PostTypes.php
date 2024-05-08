@@ -98,27 +98,34 @@ class PostTypes
         //     'admin_column' => true,
         //     'meta_key' => 'is_sponsored',
         // ],
-        'businesses_category' => [
+        'listings-category' => [
             'single' => 'Category',
             'multiple' => 'Categories',
-            'post_type' => [ 'businesses' ],
+            'post_type' => [ 'businesses', 'events', 'packages' ],
             'admin_column' => true,
             'meta_key' => 'categories.name',
         ],
-        'events_category' => [
-            'single' => 'Category',
-            'multiple' => 'Categories',
-            'post_type' => [ 'events' ],
-            'admin_column' => true,
-            'meta_key' => 'categories.name',
-        ],
-        'packages_category' => [
-            'single' => 'Category',
-            'multiple' => 'Categories',
-            'post_type' => [ 'packages' ],
-            'admin_column' => true,
-            'meta_key' => 'categories.name',
-        ],
+        // 'businesses_category' => [
+        //     'single' => 'Category',
+        //     'multiple' => 'Categories',
+        //     'post_type' => [ 'businesses' ],
+        //     'admin_column' => true,
+        //     'meta_key' => 'categories.name',
+        // ],
+        // 'events_category' => [
+        //     'single' => 'Category',
+        //     'multiple' => 'Categories',
+        //     'post_type' => [ 'events' ],
+        //     'admin_column' => true,
+        //     'meta_key' => 'categories.name',
+        // ],
+        // 'packages_category' => [
+        //     'single' => 'Category',
+        //     'multiple' => 'Categories',
+        //     'post_type' => [ 'packages' ],
+        //     'admin_column' => true,
+        //     'meta_key' => 'categories.name',
+        // ],
     ];
 
     public function __construct(CausewayImporter $plugin)
@@ -386,7 +393,7 @@ class PostTypes
             'post_type' => $info['type'],
             'name' => $info['slug'],
             'posts_per_page' => 1,
-            'status' => 'any',
+            'post_status' => [ 'publish', 'draft', 'pending' ],
         ];
 
         $query = new \WP_Query($args);
@@ -426,7 +433,7 @@ class PostTypes
         $args = [
             'post_type' => $postType,
             'posts_per_page' => 1,
-            'post_status' => 'any',
+            'post_status' => [ 'publish', 'draft', 'pending' ],
             'meta_query' => [
                 [
                     'key' => 'id',

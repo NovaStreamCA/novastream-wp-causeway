@@ -173,7 +173,7 @@ class ImportFeed
         }
 
         // Find the Post ID based on the Causeway ID or slug
-        $id = $this->findIdByMeta((int)$listing['id'], $listing['slug'], $post['post_type']);
+        $id = $this->findIdByMeta((int)$listing['id'], $listing['slug'], $post['post_type'], $listing['name']);
 
         $meta = array_diff_key(
             $listing,
@@ -276,10 +276,6 @@ class ImportFeed
         }
         unset($meta, $key, $value);
 
-        if ($post['post_type'] == 'events') {
-            $this->plugin->notice("Generated {$post['post_type']} $id - {$post['post_title']}");
-        }
-
         $this->updateAcfFields($id, $post['post_type'], $listing, $relatedListings);
 
         unset($post, $listing);
@@ -295,7 +291,6 @@ class ImportFeed
      *   - parent_id
      *   - external_id (like NovaScotia.com ID)
      *   - provider (Causeway/NovaScotia.com/etc)
-     *   - contact_name
      *   - tripadvisor_url
      *   - tripadvisor_rating_url
      *   - tripadvisor_count
@@ -329,14 +324,20 @@ class ImportFeed
 
         // Only for packages
         if ($postType === 'packages') {
-            update_field('package_date', $listing['activated_at'], $id);
-            update_field('package_date_expire', $listing['expired_at'], $id);
-            update_field('package_price', $listing['price'], $id);
+            //update_field('package_date', $listing['activated_at'], $id);
+            update_field('activation_date', $listing['activated_at'], $id);
+
+            //update_field('package_date_expire', $listing['expired_at'], $id);
+            update_field('expiry_date', $listing['expired_at'], $id);
+            //update_field('package_price', $listing['price'], $id);
+            update_field('admission_price', $listing['price'], $id);
         } elseif ($postType === 'events') {
             update_field('admission_price', $listing['price'], $id);
         }
 
         update_field('tripadvisor_id', $listing['tripadvisor_id'], $id);
+        update_field('contact_name', $listing['contact_name'], $id);
+
         // Using Causeway's ID not NovaScotia.com's ID
         update_field('product_id', $listing['id'], $id);
 
@@ -456,10 +457,11 @@ class ImportFeed
         if (!empty($relatedListings) && is_array($relatedListings)) {
             $relatedIds = [];
             foreach ($relatedListings as $related) {
-                $relatedIds[] = $this->findIdByMeta($related['id'], $related['slug'], 'businesses');
+                $relatedIds[] = $this->findIdByMeta($related['id'], $related['slug'], 'businesses', $listing['name']);
             }
 
-            $acfKey = ($postType === 'packages' ? 'affiliated_businesses' : 'bus_affiliated_businesses');
+            //$acfKey = ($postType === 'packages' ? 'affiliated_businesses' : 'bus_affiliated_businesses');
+            $acfKey = 'affiliated_listings';
             update_field($acfKey, $relatedIds, $id);
         }
         unset($acfKey, $relatedIds, $relatedListings);
@@ -481,7 +483,13 @@ class ImportFeed
 
         // Get all known post_id for posts that have a "id" meta value.
         $metadata = $wpdb->get_results(
-            "SELECT DISTINCT `post_id` FROM $wpdb->postmeta WHERE `meta_key` = 'id'"
+            "
+                SELECT DISTINCT `post_id`
+                FROM $wpdb->postmeta
+                INNER JOIN $wpdb->posts ON $wpdb->posts.ID = $wpdb->postmeta.post_id
+                WHERE `meta_key` = 'id'
+                AND $wpdb->posts.post_status IN ('draft', 'pending', 'publish')
+            "
         );
 
         $postIds = array();
@@ -524,19 +532,23 @@ class ImportFeed
      * @param string $postType
      * @return void
      */
-    public function findIdByMeta($id, $slug, $postType)
+    public function findIdByMeta($id, $slug, $postType, $title = null)
     {
         global $wpdb;
 
         $meta = $wpdb->get_row(
             "SELECT `post_id`
                 FROM $wpdb->postmeta
+                INNER JOIN $wpdb->posts ON $wpdb->posts.`ID` = $wpdb->postmeta.`post_id`
                 WHERE `meta_key` = 'id'
-                AND `meta_value` = '{$id}'"
+                AND `meta_value` = '{$id}'
+                AND $wpdb->posts.`post_status` IN ('draft', 'pending', 'publish')
+            "
         );
 
+
         if (!is_null($meta)) {
-            //$this->plugin->notice("Found $postType ID by meta with $id...");
+            //$this->plugin->notice("Found $postType $title ID by meta with $id...");
             return $meta->post_id;
         }
 
@@ -547,11 +559,11 @@ class ImportFeed
         ]);
 
         if (is_wp_error($ID)) {
-            $this->plugin->notice("Could not find $postType ID by meta with $id or slug $slug...");
+            //$this->plugin->notice("Could not find $postType $title ID by meta with $id or slug $slug...");
             return null;
         }
 
-        //$this->plugin->notice("Found $postType ID by slug {$slug}...");
+        //$this->plugin->notice("Found $postType $title ID by slug {$slug}...");
         return $ID;
     }
 
