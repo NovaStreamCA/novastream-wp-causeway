@@ -6,7 +6,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
-## [1.0.5] - 2024-05-08
+## [1.0.6] - 2024-05-08
 
 ### Added
 - Added checks to only get the post ID based on any of the following statuses: pending, draft, publish.
