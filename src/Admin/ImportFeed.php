@@ -95,51 +95,6 @@ class ImportFeed
         return true;
     }
 
-    private function iterateCategories(&$categories, $callback, $depth = 0, $parent = null)
-    {
-        if (!empty($categories)) {
-            $depth += 1;
-            foreach ($categories as &$category) {
-                $callback($category, $depth, $parent);
-                $termId = $category['term_id'] ?? null;
-                if (!empty($category['children'])) {
-                    $this->iterateCategories($category['children'], $callback, $depth, $termId);
-                }
-            }
-        }
-    }
-
-    private function categoryCallback(&$category, $depth = 0, $parent = null)
-    {
-
-        //echo str_repeat('-', $depth * 2) . "Parent: " . $parent . " Category: " . $category['name'] . "\n";
-        $args = [
-            'parent' => (int)$parent,
-            'description' => sprintf('%s (%s)', $category['name'], $category['type']['name']),
-        ];
-
-        if (!term_exists($category['name'], 'listings-category', [
-            'parent' => $args['parent'],
-        ])) {
-            $term = wp_insert_term($category['name'], 'listings-category', $args);
-        } else {
-            $term = get_term_by('slug', $category['name'], 'listings-category');
-            wp_update_term($term->term_id, 'listings-category', $args);
-        }
-
-
-        if ($term instanceof \WP_Term) {
-            $category['term_id'] = $term->term_id;
-        } elseif (is_array($term)) {
-            $category['term_id'] = $term['term_id'];
-        } elseif (is_wp_error($term)) {
-            echo $term->get_error_message() . "\n";
-            $category['term_id'] = 0;
-        } else {
-            $category['term_id'] = 0;
-        }
-    }
-
     /**
      * Begin the import process
      *
@@ -161,7 +116,7 @@ class ImportFeed
         set_time_limit(0);
 
         $causewayCategories = $this->restructureCategories($this->json['categories']);
-        $this->iterateCategories($causewayCategories, array($this, 'categoryCallback'), 0);
+        $this->iterateCategories($causewayCategories, 0);
 
         $activePostIds = [];
         $this->plugin->notice('Generating posts...');
@@ -658,27 +613,82 @@ class ImportFeed
         return $ID;
     }
 
-    private function restructureCategories($categories) {
-        $parentCategories = [];
-        $childCategories = [];
+    private function restructureCategories(array $elements) {
+        $result = [];
+        foreach ($elements as $element) {
+            $typeName = $element['type']['name'];
+            if (!isset($result[$typeName])) {
+                $result[$typeName] = [];
+            }
+            $result[$typeName] = $this->buildHierarchy($elements, null, $typeName);
+        }
+        return $result;
+    }
 
-        foreach ($categories as $category) {
-            if (is_null($category['parent'])) {
-                $parentCategories[$category['name']] = $category;
-                $parentCategories[$category['name']]['children'] = [];
-            } else {
-                $childCategories[] = $category;
+    private function buildHierarchy(array $elements, $parentId = null, $typeName) {
+        $branch = [];
+
+        foreach ($elements as $element) {
+            if ($element['parent'] === $parentId && $element['type']['name'] === $typeName) {
+                $children = $this->buildHierarchy($elements, $element, $typeName);
+                $element['children'] = [];
+                if ($children) {
+                    $element['children'] = $children;
+                }
+                $branch[$element['name']] = $element;
             }
         }
 
-        foreach ($childCategories as $child) {
-            $parentName = $child['parent']['name'];
-            if (isset($parentCategories[$parentName])) {
-                $parentCategories[$parentName]['children'][] = $child;
+        return $branch;
+    }
+
+    private function iterateCategories(&$categories, $depth = 0, $parent = null)
+    {
+        $depth += 1;
+        foreach ($categories as $key => $category) {
+            if (is_array($category)) {
+                if (isset($category['name'])) {
+                    if ($parent) {
+                        $parentSlug = sprintf('%s-%s', sanitize_title($parent['type']['name']), sanitize_title($parent['name']));
+                        $parentId = get_term_by('slug', $parentSlug, 'listings-category', ARRAY_A);
+                        if (is_array($parentId)) {
+                            $parentId = $parentId['term_id'];
+                        }
+                        //  else {
+                        //     $term = wp_insert_term($category['name'], 'listings-category', $args);
+                        // }
+                    } else {
+                        $parentSlug = null;
+                        $parentId = null;
+                    }
+                    $categoryName = $category['name'];
+                    $categorySlug = sprintf('%s-%s', $parentSlug ? $parentSlug : $category['type']['name'], $category['name']);
+
+                    $args = [
+                        'parent' => (int)$parentId,
+                        'description' => sprintf('%s (%s)', $categoryName, $category['type']['name']),
+                        'slug' => sanitize_title($categorySlug),
+                    ];
+
+                    wp_insert_term($category['name'], 'listings-category', $args);
+
+                    $this->plugin->debug(
+                        str_repeat('-', $depth * 2) .
+                        " Category: " . $categoryName .
+                        ($parentSlug ? " (Parent: " . $parentSlug . ')' : '') .
+                        "\n"
+                    );
+
+                    // If the element has children, recursively call the function
+                    if (isset($category['children']) && is_array($category['children'])) {
+                        $this->iterateCategories($category['children'], $depth, $category);
+                    } else {
+                    }
+                } else {
+                    $this->iterateCategories($category, $depth, $parent);
+                }
             }
         }
-
-        return array_values($parentCategories);
     }
 
     /**
