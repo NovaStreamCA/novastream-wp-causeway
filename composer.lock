@@ -4,20 +4,20 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "7abc829babe011b5d263a0db9c9a3dfa",
+    "content-hash": "5a9a1ca920090fbe8aa42666b6491a3d",
     "packages": [
         {
             "name": "rlanvin/php-rrule",
-            "version": "v2.4.1",
+            "version": "v2.5.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/rlanvin/php-rrule.git",
-                "reference": "7ddef3d49b7a6461dc070f671f0d94509c9a537b"
+                "reference": "75b76c85c949fdfb39024a36d83f08dc95c90c8c"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/rlanvin/php-rrule/zipball/7ddef3d49b7a6461dc070f671f0d94509c9a537b",
-                "reference": "7ddef3d49b7a6461dc070f671f0d94509c9a537b",
+                "url": "https://api.github.com/repos/rlanvin/php-rrule/zipball/75b76c85c949fdfb39024a36d83f08dc95c90c8c",
+                "reference": "75b76c85c949fdfb39024a36d83f08dc95c90c8c",
                 "shasum": ""
             },
             "require": {
@@ -51,24 +51,24 @@
             ],
             "support": {
                 "issues": "https://github.com/rlanvin/php-rrule/issues",
-                "source": "https://github.com/rlanvin/php-rrule/tree/v2.4.1"
+                "source": "https://github.com/rlanvin/php-rrule/tree/v2.5.0"
             },
-            "time": "2023-06-07T13:15:59+00:00"
+            "time": "2024-06-08T06:10:35+00:00"
         }
     ],
     "packages-dev": [
         {
             "name": "squizlabs/php_codesniffer",
-            "version": "3.9.1",
+            "version": "3.10.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/PHPCSStandards/PHP_CodeSniffer.git",
-                "reference": "267a4405fff1d9c847134db3a3c92f1ab7f77909"
+                "reference": "8f90f7a53ce271935282967f53d0894f8f1ff877"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/PHPCSStandards/PHP_CodeSniffer/zipball/267a4405fff1d9c847134db3a3c92f1ab7f77909",
-                "reference": "267a4405fff1d9c847134db3a3c92f1ab7f77909",
+                "url": "https://api.github.com/repos/PHPCSStandards/PHP_CodeSniffer/zipball/8f90f7a53ce271935282967f53d0894f8f1ff877",
+                "reference": "8f90f7a53ce271935282967f53d0894f8f1ff877",
                 "shasum": ""
             },
             "require": {
@@ -135,7 +135,7 @@
                     "type": "open_collective"
                 }
             ],
-            "time": "2024-03-31T21:03:09+00:00"
+            "time": "2024-05-22T21:24:41+00:00"
         }
     ],
     "aliases": [],

@@ -1,7 +1,7 @@
 {
   "name": "novastream/wp-causeway",
   "description": "A bridge to connect NovaStream's Causeway app with a WordPress site, mobile application or another solution.",
-  "version": "1.0.6",
+  "version": "1.0.7",
   "type": "project",
   "keywords": [
     "plugin",
@@ -42,10 +42,10 @@
     }
   ],
   "require": {
-    "rlanvin/php-rrule": "^2.4"
+    "rlanvin/php-rrule": "^2.5"
   },
   "require-dev": {
-    "squizlabs/php_codesniffer": "*"
+    "squizlabs/php_codesniffer": ">=3.10.1"
   },
   "scripts": {
     "bump": [

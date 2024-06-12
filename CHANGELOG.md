@@ -6,6 +6,16 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+## [1.0.7] - 2024-06-12
+
+### Added
+- Tie ACF community field to the community custom post type
+  
+### Modified
+- Fixed delete extra non-causeway listings (or ones that have been removed from Causeway)
+- Fix category assignments
+- Updated dependencies
+
 ## [1.0.6] - 2024-05-08
 
 ### Added
