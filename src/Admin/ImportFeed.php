@@ -95,6 +95,51 @@ class ImportFeed
         return true;
     }
 
+    private function iterateCategories(&$categories, $callback, $depth = 0, $parent = null)
+    {
+        if (!empty($categories)) {
+            $depth += 1;
+            foreach ($categories as &$category) {
+                $callback($category, $depth, $parent);
+                $termId = $category['term_id'] ?? null;
+                if (!empty($category['children'])) {
+                    $this->iterateCategories($category['children'], $callback, $depth, $termId);
+                }
+            }
+        }
+    }
+
+    private function categoryCallback(&$category, $depth = 0, $parent = null)
+    {
+
+        //echo str_repeat('-', $depth * 2) . "Parent: " . $parent . " Category: " . $category['name'] . "\n";
+        $args = [
+            'parent' => (int)$parent,
+            'description' => sprintf('%s (%s)', $category['name'], $category['type']['name']),
+        ];
+
+        if (!term_exists($category['name'], 'listings-category', [
+            'parent' => $args['parent'],
+        ])) {
+            $term = wp_insert_term($category['name'], 'listings-category', $args);
+        } else {
+            $term = get_term_by('slug', $category['name'], 'listings-category');
+            wp_update_term($term->term_id, 'listings-category', $args);
+        }
+
+
+        if ($term instanceof \WP_Term) {
+            $category['term_id'] = $term->term_id;
+        } elseif (is_array($term)) {
+            $category['term_id'] = $term['term_id'];
+        } elseif (is_wp_error($term)) {
+            echo $term->get_error_message() . "\n";
+            $category['term_id'] = 0;
+        } else {
+            $category['term_id'] = 0;
+        }
+    }
+
     /**
      * Begin the import process
      *
@@ -114,6 +159,9 @@ class ImportFeed
         $oldMemoryLimit = ini_get('memory_limit');
         //ini_set('memory_limit', '512M');
         set_time_limit(0);
+
+        $causewayCategories = $this->restructureCategories($this->json['categories']);
+        $this->iterateCategories($causewayCategories, array($this, 'categoryCallback'), 0);
 
         $activePostIds = [];
         $this->plugin->notice('Generating posts...');
@@ -238,7 +286,12 @@ class ImportFeed
                 } elseif (is_array($temp) && array_keys(array_keys($temp)) !== array_keys($temp)) {
                     // Is a assoc array
                     if ($i == $totalKeys - 1) {
-                        $post['tax_input'][$tax][] = $temp[$metaKeys[$i]];
+                        if ($tax === 'listings-category') {
+                            #var_dump($temp[$metaKeys[$i]]);
+                            $post['tax_input'][$tax][] = array_column($temp[$metaKeys[$i]], 'name');
+                        } else {
+                            $post['tax_input'][$tax][] = $temp[$metaKeys[$i]];
+                        }
                     } else {
                         $temp = &$temp[$metaKeys[$i]];
                     }
@@ -264,7 +317,13 @@ class ImportFeed
         }
 
         foreach ($post['tax_input'] as $tax => $terms) {
-            wp_set_object_terms($id, $terms, $tax, false);
+            if (is_string($terms)) {
+                wp_set_object_terms($id, $terms, $tax, false);
+            } else {
+                foreach ($terms as $term) {
+                    wp_set_object_terms($id, $term, $tax, false);
+                }
+            }
         }
 
         foreach ($meta as $key => $value) {
@@ -307,6 +366,8 @@ class ImportFeed
      */
     private function updateAcfFields($id, $postType, $listing, $relatedListings)
     {
+        global $wpdb;
+
         if (!class_exists('ACF')) {
             return;
         }
@@ -361,6 +422,33 @@ class ImportFeed
 
                 if ($postType === 'events') {
                     update_field('venue', $location['name'], $id);
+                }
+
+                if (!empty($location['community']['name'])) {
+                    $communityId = (int)$wpdb->get_var(
+                        $wpdb->prepare(
+                        "SELECT ID
+                        FROM $wpdb->posts
+                        WHERE post_title
+                        LIKE '%s' AND post_parent != 0",
+                        $wpdb->esc_like($location['community']['name']))
+                    );
+
+                    if ($communityId) {
+                        $region = get_field('region', $communityId);
+                        update_field('community', $communityId, $id);
+                    } else {
+                        $region = null;
+                        $this->plugin->warning(sprintf(
+                            'Could not find community %s in communities CPT for %s',
+                            $location['community']['name'],
+                            $listing['name']
+                        ));
+                    }
+                    //update_field('region', $region, $id);
+                } else {
+                    // update_field('community', null, $id);
+                    // update_field('region', null, $id);
                 }
             }
         }
@@ -481,14 +569,15 @@ class ImportFeed
 
         $count = 0;
 
-        // Get all known post_id for posts that have a "id" meta value.
+        // Get all known post_id for posts that exist under the causeway post types.
+        // Only get the published ones though, incase they want to keep the drafts/pending on WordPress.
         $metadata = $wpdb->get_results(
             "
                 SELECT DISTINCT `post_id`
                 FROM $wpdb->postmeta
                 INNER JOIN $wpdb->posts ON $wpdb->posts.ID = $wpdb->postmeta.post_id
-                WHERE `meta_key` = 'id'
-                AND $wpdb->posts.post_status IN ('draft', 'pending', 'publish')
+                AND $wpdb->posts.post_type IN ('businesses', 'packages', 'events')
+                AND $wpdb->posts.post_status IN ('publish')
             "
         );
 
@@ -499,9 +588,11 @@ class ImportFeed
             }
         }
 
+
         // Cleanup both arrays
         $knownPostIds = array_unique(array_filter($knownPostIds), SORT_NUMERIC);
         $postIds = array_unique(array_filter($postIds), SORT_NUMERIC);
+
 
         // Get the difference of the known post IDs compared to the full list
         $deletablePostIds = array_diff($postIds, $knownPostIds);
@@ -517,7 +608,7 @@ class ImportFeed
             if ($res instanceof \WP_Post) {
                 $count++;
             } else {
-                $this->plugin->notice("Error deleting $postId $res");
+                $this->plugin->warning("Error deleting $postId $res");
             }
         }
 
@@ -565,6 +656,29 @@ class ImportFeed
 
         //$this->plugin->notice("Found $postType $title ID by slug {$slug}...");
         return $ID;
+    }
+
+    private function restructureCategories($categories) {
+        $parentCategories = [];
+        $childCategories = [];
+
+        foreach ($categories as $category) {
+            if (is_null($category['parent'])) {
+                $parentCategories[$category['name']] = $category;
+                $parentCategories[$category['name']]['children'] = [];
+            } else {
+                $childCategories[] = $category;
+            }
+        }
+
+        foreach ($childCategories as $child) {
+            $parentName = $child['parent']['name'];
+            if (isset($parentCategories[$parentName])) {
+                $parentCategories[$parentName]['children'][] = $child;
+            }
+        }
+
+        return array_values($parentCategories);
     }
 
     /**

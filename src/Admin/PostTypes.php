@@ -103,7 +103,8 @@ class PostTypes
             'multiple' => 'Categories',
             'post_type' => [ 'businesses', 'events', 'packages' ],
             'admin_column' => true,
-            'meta_key' => 'categories.name',
+            'meta_key' => 'categories',
+            'hierarchical' => true,
         ],
         // 'businesses_category' => [
         //     'single' => 'Category',
@@ -323,7 +324,7 @@ class PostTypes
 
         $res = register_taxonomy($slug, $data['post_type'], [
             'labels' => $taxLabels,
-            'hierarchical' => false,
+            'hierarchical' => $data['hierarchical'] ?? false,
             'public' => true,
             'show_ui' => true,
             'show_admin_column' => $data['admin_column'] ?? false,
