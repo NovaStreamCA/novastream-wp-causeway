@@ -6,6 +6,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+## [1.0.9] - 2024-07-11
+### Modified
+- Fixed setting ACF field for the "region".
+
 ## [1.0.8] - 2024-06-12
 
 ### Modified
