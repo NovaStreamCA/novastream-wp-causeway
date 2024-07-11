@@ -400,7 +400,7 @@ class ImportFeed
                             $listing['name']
                         ));
                     }
-                    //update_field('region', $region, $id);
+                    update_field('region', $region, $id);
                 } else {
                     // update_field('community', null, $id);
                     // update_field('region', null, $id);
