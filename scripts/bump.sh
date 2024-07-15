@@ -3,7 +3,9 @@
 # @author Matt Lewis
 # @date 2024-04-17
 
-set -e
+COMPOSER_JSON_PATH="composer.json"
+PHP_PATH="novastream-wp-causeway.php"
+
 
 get_version() {
     jq -r '.version' "$COMPOSER_JSON_PATH"
@@ -44,23 +46,30 @@ update_files() {
     sed -i "s/\$version = '[0-9.]*';/\$version = '$NEW_VERSION';/" "$PHP_PATH"
 }
 
-COMPOSER_JSON_PATH="composer.json"
-PHP_PATH="novastream-wp-causeway.php"
-
+changelog_confirmation() {
+    while true; do
+        read -p "Did you update the changelog? [y/n] " yn
+        case $yn in
+            [Yy]* ) break;;
+            [Nn]* ) echo "Please update the CHANGELOG.md before continuing."; exit 1;;
+            * ) echo "Please answer y or n.";;
+        esac
+    done
+}
 
 if [ ! -f "$COMPOSER_JSON_PATH" ]; then
-echo $(dirname "$0")
-    echo "Error: composer.json cannot be found in the $0"
+    echo "Error: $COMPOSER_JSON_PATH cannot be found in the $0"
     exit 1
 fi
 
 if [ ! -f "$PHP_PATH" ]; then
-    echo "Error: novastream-wp-causeway.php cannot be found in the current directory"
+    echo "Error: $PHP_PATH cannot be found in the current directory"
     exit 1
 fi
 
 case "$1" in
     --major|--minor|--rev)
+        changelog_confirmation
         NEW_VERSION=$(bump_version "$1")
         update_files "$NEW_VERSION"
 
