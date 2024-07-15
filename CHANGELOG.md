@@ -6,6 +6,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+## [1.0.10] - 2024-07-15
+### Modified
+- Modified categories to include the listing type as the top-level
+- Fixed category hierarchy
+  
 ## [1.0.9] - 2024-07-11
 ### Modified
 - Fixed setting ACF field for the "region".
