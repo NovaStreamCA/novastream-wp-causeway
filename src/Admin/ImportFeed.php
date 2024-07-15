@@ -116,7 +116,19 @@ class ImportFeed
         set_time_limit(0);
 
         $causewayCategories = $this->restructureCategories($this->json['categories']);
-        $this->iterateCategories($causewayCategories, 0);
+
+        foreach ($causewayCategories as $type => $categories) {
+            $args = [
+                'parent' => null,
+                'description' => 'Parent (' . $type . ')',
+                'slug' => sanitize_title($type),
+            ];
+            if (!term_exists($type, 'listings-category')) {
+                $res = wp_insert_term($type, 'listings-category', $args);
+                $this->plugin->notice('Creating listing-category ' . $type . '...');
+            }
+            $this->iterateCategories($categories, 0, [ 'name' => $type ]);
+        }
 
         $activePostIds = [];
         $this->plugin->notice('Generating posts...');
@@ -242,7 +254,6 @@ class ImportFeed
                     // Is a assoc array
                     if ($i == $totalKeys - 1) {
                         if ($tax === 'listings-category') {
-                            #var_dump($temp[$metaKeys[$i]]);
                             $post['tax_input'][$tax][] = array_column($temp[$metaKeys[$i]], 'name');
                         } else {
                             $post['tax_input'][$tax][] = $temp[$metaKeys[$i]];
@@ -645,48 +656,68 @@ class ImportFeed
     private function iterateCategories(&$categories, $depth = 0, $parent = null)
     {
         $depth += 1;
+
         foreach ($categories as $key => $category) {
-            if (is_array($category)) {
-                if (isset($category['name'])) {
-                    if ($parent) {
-                        $parentSlug = sprintf('%s-%s', sanitize_title($parent['type']['name']), sanitize_title($parent['name']));
-                        $parentId = get_term_by('slug', $parentSlug, 'listings-category', ARRAY_A);
-                        if (is_array($parentId)) {
-                            $parentId = $parentId['term_id'];
-                        }
-                        //  else {
-                        //     $term = wp_insert_term($category['name'], 'listings-category', $args);
-                        // }
-                    } else {
-                        $parentSlug = null;
-                        $parentId = null;
-                    }
-                    $categoryName = $category['name'];
-                    $categorySlug = sprintf('%s-%s', $parentSlug ? $parentSlug : $category['type']['name'], $category['name']);
+            if (!is_array($category)) {
+                continue;
+            }
 
-                    $args = [
-                        'parent' => (int)$parentId,
-                        'description' => sprintf('%s (%s)', $categoryName, $category['type']['name']),
-                        'slug' => sanitize_title($categorySlug),
-                    ];
+            $parentId = null;
+            $parentSlug = '';
+            if (!isset($category['name'])) {
+                $this->iterateCategories($category, $depth, $parent);
+            }
+            $categoryName = $category['name'];
+            $categoryType = sanitize_title($category['type']['name']);
 
-                    wp_insert_term($category['name'], 'listings-category', $args);
+            if ($parent) {
+                $parents = $parent;
 
-                    $this->plugin->debug(
-                        str_repeat('-', $depth * 2) .
-                        " Category: " . $categoryName .
-                        ($parentSlug ? " (Parent: " . $parentSlug . ')' : '') .
-                        "\n"
-                    );
+                do {
+                    $parentSlug = sanitize_title($parents['name']) . '-' . $parentSlug;
+                    $parents = $parents['parent'] ?? null;
+                } while ($parents);
+                $parentSlug = rtrim($parentSlug, '-');
 
-                    // If the element has children, recursively call the function
-                    if (isset($category['children']) && is_array($category['children'])) {
-                        $this->iterateCategories($category['children'], $depth, $category);
-                    } else {
-                    }
-                } else {
-                    $this->iterateCategories($category, $depth, $parent);
+                if (substr($parentSlug, 0, strlen($categoryType)) != $categoryType) {
+                    $parentSlug = $categoryType . '-' . $parentSlug;
                 }
+                $parentId = get_term_by('slug', $parentSlug, 'listings-category', ARRAY_A);
+
+                if (is_array($parentId)) {
+                    $parentId = $parentId['term_id'];
+                }
+                //  else {
+                //     $term = wp_insert_term($category['name'], 'listings-category', $args);
+                // }
+            }
+
+
+            if (!empty($parentSlug)) {
+                $categorySlug = sanitize_title($parentSlug . '-' . $categoryName);
+            } else {
+                $categorySlug = sanitize_title($categoryName);
+            }
+
+            $args = [
+                'parent' => (int)$parentId,
+                'description' => sprintf('%s (%s)', $categoryName, $category['type']['name']),
+                'slug' => $categorySlug,
+            ];
+
+            if (!term_exists($categoryName, 'listings-category', (int)$parentId)) {
+                wp_insert_term($categoryName, 'listings-category', $args);
+            }
+
+            $this->plugin->debug(
+                str_repeat('-', $depth * 2) .
+                " Category: " . $categoryName .
+                ($parentSlug ? " (Parent: " . $parentSlug . ')' : '') .
+                "\n"
+            );
+
+            if (isset($category['children']) && is_array($category['children'])) {
+                $this->iterateCategories($category['children'], $depth, $category);
             }
         }
     }
