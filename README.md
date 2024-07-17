@@ -138,7 +138,7 @@ There is a script included that can be used to bump versions and automatically t
 
 In the root directory of the plugin you can run the following command:
 ```bash
-composer run-script bump -- --rev
+composer run-script bump-project -- --rev
 ```
 
 You should also check your coding standards by running the PHPCS script in the same directory.

@@ -42,17 +42,21 @@
     }
   ],
   "require": {
-    "rlanvin/php-rrule": "^2.5"
+    "rlanvin/php-rrule": "^2.5.1"
   },
   "require-dev": {
     "squizlabs/php_codesniffer": ">=3.10.1"
   },
   "scripts": {
-    "bump": [
+    "bump-project": [
       "scripts/bump.sh"
     ],
     "phpcs": [
       "vendor/bin/phpcs ."
     ]
+  },
+  "scripts-descriptions": {
+    "bump-project": "Bump the project version by using --rev, --minor or --major and push/tag on GitHub",
+    "phpcs": "Check project complies with requested coding style guidelines"
   }
 }
