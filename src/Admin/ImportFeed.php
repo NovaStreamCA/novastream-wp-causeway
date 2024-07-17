@@ -395,12 +395,13 @@ class ImportFeed
                 if (!empty($location['community']['name'])) {
                     $communityId = (int)$wpdb->get_var(
                         $wpdb->prepare(
-                        "SELECT ID
-                        FROM $wpdb->posts
-                        WHERE post_status = 'publish'
-                        AND post_name LIKE '%s'
-                        AND post_parent != 0",
-                        $wpdb->esc_like($communitySlug))
+                            "SELECT ID
+                            FROM $wpdb->posts
+                            WHERE post_status = 'publish'
+                            AND post_name LIKE '%s'
+                            AND post_parent != 0",
+                            $wpdb->esc_like($communitySlug)
+                        )
                     );
 
                     if ($communityId) {
@@ -627,7 +628,8 @@ class ImportFeed
         return $ID;
     }
 
-    private function restructureCategories(array $elements) {
+    private function restructureCategories(array $elements)
+    {
         $result = [];
         foreach ($elements as $element) {
             $typeName = $element['type']['name'];
@@ -639,7 +641,8 @@ class ImportFeed
         return $result;
     }
 
-    private function buildHierarchy(array $elements, $parentId = null, $typeName) {
+    private function buildHierarchy(array $elements, $parentId, $typeName)
+    {
         $branch = [];
 
         foreach ($elements as $element) {
