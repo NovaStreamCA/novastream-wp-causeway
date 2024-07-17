@@ -390,14 +390,17 @@ class ImportFeed
                     update_field('venue', $location['name'], $id);
                 }
 
+                $communitySlug = sanitize_title($location['community']['name']);
+
                 if (!empty($location['community']['name'])) {
                     $communityId = (int)$wpdb->get_var(
                         $wpdb->prepare(
                         "SELECT ID
                         FROM $wpdb->posts
-                        WHERE post_title
-                        LIKE '%s' AND post_parent != 0",
-                        $wpdb->esc_like($location['community']['name']))
+                        WHERE post_status = 'publish'
+                        AND post_name LIKE '%s'
+                        AND post_parent != 0",
+                        $wpdb->esc_like($communitySlug))
                     );
 
                     if ($communityId) {
