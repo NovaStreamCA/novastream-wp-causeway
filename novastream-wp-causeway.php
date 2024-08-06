@@ -35,7 +35,7 @@ if (!defined('ABSPATH')) {
 
 class CausewayImporter
 {
-    private $version = '1.0.12';
+    private $version = '1.0.13';
     private $slug = 'novastream-wp-causeway';
     private $longName = 'Causeway 5.0 WordPress Importer';
     private $shortName = 'Causeway';

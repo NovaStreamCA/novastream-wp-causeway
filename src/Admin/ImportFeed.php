@@ -162,6 +162,8 @@ class ImportFeed
      */
     public function generatePost($listing)
     {
+        global $wpdb;
+
         $post = [];
 
         foreach ($listing['types'] as $type) {
@@ -197,8 +199,14 @@ class ImportFeed
         );
 
         if (!is_null($id)) {
-            $isNew = false;
-            $post['ID'] = $id;
+            $postExists = $wpdb->get_row("SELECT id FROM $wpdb->posts WHERE id = '" . intval($id) . "'");
+            if ($postExists) {
+                $isNew = false;
+                $post['ID'] = $id;
+            } else {
+                $isNew = true;
+                unset($post['ID']);
+            }
         } else {
             $isNew = true;
             unset($post['ID']);
@@ -254,6 +262,14 @@ class ImportFeed
                     // Is a assoc array
                     if ($i == $totalKeys - 1) {
                         if ($tax === 'listings-category') {
+                            if (empty($temp[$metaKeys[$i]])) {
+                                continue;
+                            }
+                            $key = key($temp[$metaKeys[$i]]);
+                            $type = $temp[$metaKeys[$i]][$key]['type']['name'];
+                            if (!in_array($type, $post['tax_input'][$tax])) {
+                                $post['tax_input'][$tax][] = $type;
+                            }
                             $post['tax_input'][$tax][] = array_column($temp[$metaKeys[$i]], 'name');
                         } else {
                             $post['tax_input'][$tax][] = $temp[$metaKeys[$i]];

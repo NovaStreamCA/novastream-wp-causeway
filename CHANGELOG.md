@@ -6,7 +6,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
-## [1.0.12] - 2024-07-15
+## [1.0.13]  
+### Modified
+- Added additional check for if post already exists
+- Fixed coding style issues (PSR12)
+
+## [1.0.12] - 2024-07-17
 ### Modified
 - Changed community lookup from post_title to post_name (slug). This should help solve curly quotes/backtick problem.
 
